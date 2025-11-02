@@ -40,7 +40,7 @@ def main():
         print("ERR - socket creation failed")
         sys.exit()
 
-    #prepare static and dynamic fields for the ping packet
+    #fields for the ping packet
     hostname = socket.gethostname()
     version = 1
     class_name = "VCU-CMSC440-FALL-2025"
@@ -103,3 +103,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
