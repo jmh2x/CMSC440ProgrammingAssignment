@@ -8,7 +8,7 @@ import sys
 import time
 import json
 
-# Function to print packet header and payload in the required format
+# Function to print packet header and payload
 def PacketInfo(header, payload, packet):
     print(header)
     print(f"Version: {packet['Version']}")
@@ -42,13 +42,12 @@ def main():
 
     # Prepare static and dynamic fields for the ping packet
     hostname = socket.gethostname()
-    version_str = "1.0"
-    version = int(version_str.split('.')[0])  # Version field as byte
+    version = 1
     class_name = "VCU-CMSC440-FALL-2025"
     user_name = "Henry, Govan"
 
-    rtts = []  # Store round-trip times
-    lost = 0   # Count lost packets
+    rtts = []  # round-trip times
+    lost = 0   # lost packets
 
     # Send 10 ping packets
     for seqno in range(1, 11):
@@ -68,7 +67,7 @@ def main():
                       packet)
 
         try:
-            # Send packet and wait for reply
+            # Send packet to server and wait for reply
             client_socket.sendto(json.dumps(packet).encode(), (server_host, server_port))
             reply, _ = client_socket.recvfrom(2048)
             recv_time = time.time()
@@ -80,27 +79,27 @@ def main():
                           reply_packet)
 
             # Calculate and print RTT
-            rtt_sec = recv_time - reply_packet['Timestamp']
-            rtt_ms = rtt_sec * 1000
-            rtt_us = rtt_sec * 1_000_000
-            print(f"RTT: {rtt_us:.2f} µs :: {rtt_ms:.2f} ms :: {rtt_sec:.6f} s")
-            rtts.append(rtt_us)
+            rtt_sec = recv_time - reply_packet['Timestamp'] # RTT in seconds(receive time - reply packet timestamp)
+            rtt_ms = rtt_sec * 1000 # RTT in milliseconds
+            rtt_us = rtt_sec * 1_000_000 # RTT in microseconds
+            print(f"RTT: {rtt_us:.2f} µs :: {rtt_ms:.2f} ms :: {rtt_sec:.6f} s") # print RTT in microseconds, milliseconds, seconds
+            rtts.append(rtt_us) # store RTT in microseconds
 
         except socket.timeout:
             # Handle timeout if no reply received
             print("----------- Ping Reply Timed Out -----------")
-            lost += 1
+            lost += 1 # increment lost packet count
 
-    # Print summary statistics
+    #summary statistics
     if rtts:
-        min_rtt = min(rtts)
-        max_rtt = max(rtts)
-        avg_rtt = sum(rtts) / len(rtts)
+        min_rtt = min(rtts) # minimum RTT
+        max_rtt = max(rtts) # maximum RTT
+        avg_rtt = sum(rtts) / len(rtts) # average RTT
     else:
-        min_rtt = max_rtt = avg_rtt = 0
+        min_rtt = max_rtt = avg_rtt = 0 # no RTTs recorded
 
-    loss_rate = (lost / 10) * 100
-    print(f"Summary: {min_rtt:.2f} :: {max_rtt:.2f} :: {avg_rtt:.2f} :: {loss_rate:.0f}%")
+    loss_rate = (lost / 10) * 100 # packet loss rate percentage
+    print(f"Summary: {min_rtt:.2f} :: {max_rtt:.2f} :: {avg_rtt:.2f} :: {loss_rate:.0f}%") # print summary statistics
 
 if __name__ == "__main__":
     main()
